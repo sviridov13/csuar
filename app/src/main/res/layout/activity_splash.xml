@@ -7,14 +7,14 @@
                 android:paddingLeft="@dimen/activity_horizontal_margin"
                 android:paddingRight="@dimen/activity_horizontal_margin"
                 android:paddingTop="@dimen/activity_vertical_margin"
-                tools:context=".SplashActivity"
+                tools:context="com.csu.ar.SplashActivity"
                 android:background="@color/colorPrimaryDark">
 
     <ImageView
             android:id="@+id/splashImage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/splash_image"
+            android:src="@drawable/csu_logo"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
             android:visibility="invisible"/>

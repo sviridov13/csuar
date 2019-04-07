@@ -6,25 +6,23 @@
 //
 //================================================================================================================================
 
-package cn.easyar.samples.helloar;
+package com.csu.ar;
 
 import android.Manifest;
 import android.annotation.TargetApi;
 import android.content.pm.PackageManager;
-import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.ViewGroup;
-import android.view.WindowManager;
+import android.view.*;
 import android.util.Log;
 
 import java.util.HashMap;
 
+import android.widget.Toast;
 import cn.easyar.Engine;
+import cn.easyar.samples.helloar.R;
 
 
 public class MainActivity extends AppCompatActivity
@@ -127,7 +125,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.navigation, menu);
         return true;
     }
 
@@ -136,9 +134,7 @@ public class MainActivity extends AppCompatActivity
     {
         int id = item.getItemId();
 
-        if (id == R.id.action_settings) {
-            return true;
-        }
+        Toast.makeText(this, id, Toast.LENGTH_LONG).show();
 
         return super.onOptionsItemSelected(item);
     }

@@ -6,7 +6,7 @@
 //
 //================================================================================================================================
 
-package cn.easyar.samples.helloar;
+package com.csu.ar;
 
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
@@ -15,16 +15,32 @@ import javax.microedition.khronos.egl.EGLDisplay;
 import javax.microedition.khronos.opengles.GL10;
 
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.opengl.GLSurfaceView;
 import android.util.Log;
 
 import cn.easyar.Engine;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.ShortBuffer;
+
 public class GLView extends GLSurfaceView
 {
-    private HelloAR helloAR;
+    private final HelloAR helloAR;
 
-    public GLView(Context context)
+    private boolean screenshot;
+    private int width;
+    private int height;
+
+    public void setScreenshot(boolean screenshot) {
+        this.screenshot = screenshot;
+    }
+
+    public GLView(final Context context)
     {
         super(context);
         setEGLContextFactory(new ContextFactory());
@@ -45,6 +61,8 @@ public class GLView extends GLSurfaceView
                 synchronized (helloAR) {
                     helloAR.resizeGL(w, h);
                 }
+                width = w;
+                height = h;
             }
 
             @Override
@@ -52,14 +70,17 @@ public class GLView extends GLSurfaceView
                 synchronized (helloAR) {
                     helloAR.render(getContext());
                 }
+                if(screenshot) {
+                    screenshot = false;
+                    captureImage(context, gl);
+                }
             }
         });
         this.setZOrderMediaOverlay(true);
     }
 
     @Override
-    protected void onAttachedToWindow()
-    {
+    protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         synchronized (helloAR) {
             if (helloAR.initialize()) {
@@ -90,6 +111,47 @@ public class GLView extends GLSurfaceView
     {
         Engine.onPause();
         super.onPause();
+    }
+
+    private void captureImage(Context context, GL10 gl) {
+        int screenshotSize = width * height;
+        ByteBuffer bb = ByteBuffer.allocateDirect(screenshotSize * 4);
+        bb.order(ByteOrder.nativeOrder());
+        gl.glReadPixels(0, 0, width, height, GL10.GL_RGBA, GL10.GL_UNSIGNED_BYTE, bb);
+        int pixelsBuffer[] = new int[screenshotSize];
+        bb.asIntBuffer().get(pixelsBuffer);
+        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
+        bitmap.setPixels(pixelsBuffer, screenshotSize-width, -width, 0, 0, width, height);
+
+        short sBuffer[] = new short[screenshotSize];
+        ShortBuffer sb = ShortBuffer.wrap(sBuffer);
+        bitmap.copyPixelsToBuffer(sb);
+
+        //Making created bitmap (from OpenGL points) compatible with Android bitmap
+        for (int i = 0; i < screenshotSize; ++i) {
+            short v = sBuffer[i];
+            sBuffer[i] = (short) (((v&0x1f) << 11) | (v&0x7e0) | ((v&0xf800) >> 11));
+        }
+        sb.rewind();
+        bitmap.copyPixelsFromBuffer(sb);
+
+        Intent intent = new Intent("pictureAvailability");
+
+        try {
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+            FileOutputStream fo = context.openFileOutput("tempImage.jpeg", Context.MODE_PRIVATE);
+            fo.write(bytes.toByteArray());
+            fo.close();
+            intent.putExtra("Status", "Created");
+            Log.i("GLView{new thread}", "Status = Created");
+        } catch (Exception e) {
+            Log.e("GLView{new thread}", "Failed to save picture " + e.getMessage());
+            intent.putExtra("Status", "Fail");
+            Log.e("GLView{new thread}", "Status = Fail");
+        }
+
+        context.sendBroadcast(intent);
     }
 
     private static class ContextFactory implements GLSurfaceView.EGLContextFactory
