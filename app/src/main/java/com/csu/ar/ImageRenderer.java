@@ -7,7 +7,7 @@ import android.graphics.BitmapFactory;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
 
-import cn.easyar.samples.helloar.R;
+import com.csu.ar.R;
 
 import java.io.IOException;
 import java.io.InputStream;

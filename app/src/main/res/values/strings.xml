@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">HelloAR</string>
+    <string name="app_name">CSUAR</string>
     <string name="camera">Камера</string>
     <string name="about">О приложении</string>
     <string name="title_activity_preview_image">PreviewImageActivity</string>

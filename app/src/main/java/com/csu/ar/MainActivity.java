@@ -22,7 +22,7 @@ import java.util.HashMap;
 
 import android.widget.Toast;
 import cn.easyar.Engine;
-import cn.easyar.samples.helloar.R;
+import com.csu.ar.R;
 
 
 public class MainActivity extends AppCompatActivity
@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity
     *  1. login www.easyar.com
     *  2. create app with
     *      Name: HelloAR
-    *      Package Name: cn.easyar.samples.helloar
+    *      Package Name: com.csu.ar
     *  3. find the created item in the list and show key
     *  4. set key string bellow
     */

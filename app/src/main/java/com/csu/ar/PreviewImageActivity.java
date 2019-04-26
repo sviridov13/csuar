@@ -20,7 +20,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import cn.easyar.samples.helloar.R;
+import com.csu.ar.R;
 
 import java.io.File;
 import java.io.FileOutputStream;

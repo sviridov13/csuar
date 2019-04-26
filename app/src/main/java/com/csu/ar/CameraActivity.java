@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import cn.easyar.Engine;
-import cn.easyar.samples.helloar.R;
+import com.csu.ar.R;
 
 public class CameraActivity extends AppCompatActivity {
 
