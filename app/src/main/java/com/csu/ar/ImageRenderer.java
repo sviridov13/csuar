@@ -1,7 +1,6 @@
 package com.csu.ar;
 
 import android.content.Context;
-import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.opengl.GLES20;
@@ -9,8 +8,6 @@ import android.opengl.GLUtils;
 
 import com.csu.ar.R;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
@@ -192,9 +189,9 @@ public class ImageRenderer {
 
     }
 
-    public void render(Context context, String path, Matrix44F projectionMatrix, Matrix44F cameraview, Vec2F size) {
-        float size0 = size.data[0];
-        float size1 = size.data[1];
+    public void render(String path, Matrix44F projectionMatrix, Matrix44F cameraview, Vec2F size, int kw, int kh) {
+        float size0 = size.data[0] * kw;
+        float size1 = size.data[1] * kh;
 
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vbo_coord_box);
         float height = size0 / 1000;
@@ -222,30 +219,22 @@ public class ImageRenderer {
         GLES20.glGenTextures(1, textureHandle, 0);
         final BitmapFactory.Options options = new BitmapFactory.Options();
         options.inScaled = false;
-        //final Bitmap bitmap = BitmapFactory.decodeFile(path, options);
-        final Bitmap bitmap;
-        try {
-            InputStream ims = context.getAssets().open("idback.jpg");
-            bitmap = BitmapFactory.decodeStream(ims);
-            GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+        final Bitmap bitmap = BitmapFactory.decodeFile(path, options);
+//        final Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), image, options);
+        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 
-            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureHandle[0]);
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureHandle[0]);
 
-            GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
-            GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST);
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST);
 
-            GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
-            GLES20.glEnable(GLES20.GL_BLEND);
+        GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+        GLES20.glEnable(GLES20.GL_BLEND);
 
-            GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
-            bitmap.recycle();
-            GLES20.glDrawElements(GLES20.GL_TRIANGLE_FAN, 4, GLES20.GL_UNSIGNED_SHORT, 0);
-            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
-        } catch (IOException e) {
-
-        }
-        //final Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), , options);
-
+        GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
+        bitmap.recycle();
+        GLES20.glDrawElements(GLES20.GL_TRIANGLE_FAN, 4, GLES20.GL_UNSIGNED_SHORT, 0);
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
     }
 
     public int texId() {

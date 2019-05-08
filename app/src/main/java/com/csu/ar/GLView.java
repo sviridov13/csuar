@@ -83,7 +83,7 @@ public class GLView extends GLSurfaceView
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         synchronized (helloAR) {
-            if (helloAR.initialize()) {
+            if (helloAR.initialize(getContext())) {
                 helloAR.start();
             }
         }
