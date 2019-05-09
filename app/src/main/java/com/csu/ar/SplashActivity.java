@@ -13,6 +13,9 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -30,6 +33,7 @@ public class SplashActivity extends Activity {
     FirebaseStorage storage = FirebaseStorage.getInstance();
     StorageReference storageRef = storage.getReference();
 
+    FirebaseAuth mAuth;
 
     String tmpDir = System.getProperty("java.io.tmpdir");
     File targetsDir = new File(tmpDir + "/targets");
@@ -44,7 +48,13 @@ public class SplashActivity extends Activity {
         requestCameraPermission(new SplashActivity.PermissionCallback() {
             @Override
             public void onSuccess() {
-                loadFilesToCache();
+                mAuth = FirebaseAuth.getInstance();
+                FirebaseUser user = mAuth.getCurrentUser();
+                if (user != null) {
+                    // do your stuff
+                } else {
+                    signInAnonymously();
+                }
                 //((ViewGroup) findViewById(R.id.preview)).addView(glView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
             }
 
@@ -54,10 +64,30 @@ public class SplashActivity extends Activity {
         });
     }
 
+    private void signInAnonymously() {
+        mAuth.signInAnonymously().addOnSuccessListener(this, new OnSuccessListener<AuthResult>() {
+            @Override
+            public void onSuccess(AuthResult authResult) {
+                loadFilesToCache();
+            }
+        })
+                .addOnFailureListener(this, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        Log.e(TAG, "signInAnonymously:FAILURE", exception);
+                    }
+                });
+    }
+
     private void startMainActivity() {
-        Intent intent = new Intent(this, CameraActivity.class);
-        startActivity(intent);
-        finish();
+        if (!CameraActivity.getStatus()) {
+            Intent intent = new Intent(this, CameraActivity.class);
+            startActivity(intent);
+            Log.i(TAG, "CameraActivity start");
+            finish();
+        } else {
+            Log.i(TAG, "CameraActivity already start");
+        }
     }
 
     private void loadFilesToCache() {

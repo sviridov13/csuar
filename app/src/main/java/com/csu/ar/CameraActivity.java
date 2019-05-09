@@ -27,6 +27,8 @@ public class CameraActivity extends AppCompatActivity {
 
     private ImageView cameraCaptureButton;
 
+    private static boolean active;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,6 +86,7 @@ public class CameraActivity extends AppCompatActivity {
 
     @Override
     protected void onStart() {
+        active = true;
         super.onStart();
         GLViewSurface.onResume();
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN
@@ -93,6 +96,7 @@ public class CameraActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        active = false;
         unregisterReceiver(broadcastReceiver);
         super.onDestroy();
     }
@@ -100,6 +104,10 @@ public class CameraActivity extends AppCompatActivity {
     public void preparationAndOpenPreviewImageActivity() {
         Intent startActivityIntent = new Intent(this, PreviewImageActivity.class);
         startActivity(startActivityIntent);
+    }
+
+    public static boolean getStatus() {
+        return active;
     }
 
 }
