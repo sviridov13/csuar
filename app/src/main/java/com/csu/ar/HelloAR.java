@@ -34,6 +34,7 @@ import cn.easyar.TargetInstance;
 import cn.easyar.TargetStatus;
 import cn.easyar.Vec2I;
 import cn.easyar.Vec4I;
+import com.google.gson.TypeAdapterFactory;
 import org.json.JSONObject;
 
 public class HelloAR
@@ -95,11 +96,11 @@ public class HelloAR
 
         File targetsDir = new File(System.getProperty("java.io.tmpdir") + "/targets");
         File modelsDir = new File(System.getProperty("java.io.tmpdir") + "/models");
+        Log.e(TAG, Boolean.toString(targetsDir.exists()));
         if (targetsDir.exists() && modelsDir.exists()) {
             File[] targetsFiles = targetsDir.listFiles();
             for (File targetsFile : targetsFiles) {
                 String targetsFileName = targetsFile.getName();
-                Log.e(TAG, targetsFileName);
                 //if (targetsFileName.contains(".json")) {
 
                     ImageTracker imageTracker = new ImageTracker();
@@ -108,17 +109,12 @@ public class HelloAR
                     arUtils.loadFromImage(imageTracker, targetsDir + "/" + targetsFileName);
                     String prefix = targetsFileName.substring(0, targetsFileName.indexOf('.'));
 
-                    Log.e("TARGET", prefix);
-
                     File[] modelsFiles = modelsDir.listFiles();
                     for (File modelsFile : modelsFiles) {
                         String modelsFileName = modelsFile.getName();
-                        Log.e("MODEL", modelsFileName);
-                        Log.e(TAG, Boolean.toString(modelsFileName.contains(prefix)));
                         if (modelsFileName.contains(prefix))
                         {
                             if  (prefix.contains("image")) {
-                                Log.e(TAG, "image");
                                 imagesTrackers.add(imageTracker);
                                 imagesModels.add(modelsDir + "/" + modelsFileName);
                                 break;
@@ -307,7 +303,7 @@ public class HelloAR
             for (TargetInstance targetInstance : frame.targetInstances()) {
                 int status = targetInstance.status();
                 if (status == TargetStatus.Tracked) {
-                    Log.i(TAG, targetInstance.target().name());
+//                    Log.i(TAG, targetInstance.target().name());
                     Target target = targetInstance.target();
                     int id = target.runtimeID();
                     if (active_target != 0 && active_target != id) {

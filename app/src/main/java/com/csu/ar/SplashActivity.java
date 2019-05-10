@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.support.annotation.NonNull;
 import android.util.Log;
+import android.view.View;
+import com.csu.ar.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -39,11 +41,13 @@ public class SplashActivity extends Activity {
     File targetsDir = new File(tmpDir + "/targets");
     File modelsDir = new File(tmpDir + "/models");
     File backgroundsDir = new File(tmpDir + "/backgrounds");
+    private FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
+        db = FirebaseFirestore.getInstance();
 
         requestCameraPermission(new SplashActivity.PermissionCallback() {
             @Override
@@ -51,11 +55,10 @@ public class SplashActivity extends Activity {
                 mAuth = FirebaseAuth.getInstance();
                 FirebaseUser user = mAuth.getCurrentUser();
                 if (user != null) {
-                    // do your stuff
+                    loadFilesToCache();
                 } else {
                     signInAnonymously();
                 }
-                //((ViewGroup) findViewById(R.id.preview)).addView(glView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
             }
 
             @Override
@@ -90,6 +93,46 @@ public class SplashActivity extends Activity {
         }
     }
 
+    private void loadModels() {
+        if (!modelsDir.exists()) {
+            modelsDir.mkdir();
+        }
+
+        db.collection("models")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                String fullname = document.getId();
+                                StorageReference modelRef = storageRef.child("models/" + fullname);
+                                File localFile = new File(modelsDir, fullname);
+                                Log.e(TAG, localFile.getAbsolutePath());
+                                if (!localFile.exists()) {
+                                    modelRef.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                                        @Override
+                                        public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                                            Log.i(TAG, "Start from models");
+                                            startMainActivity();
+                                        }
+                                    }).addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception exception) {
+                                            Log.e(TAG, exception.getMessage());
+                                        }
+                                    });
+                                } else {
+                                   startMainActivity();
+                                }
+                            }
+                        } else {
+                            Log.d(TAG, "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
+    }
+
     private void loadFilesToCache() {
         storage.setMaxDownloadRetryTimeMillis(1);
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -109,13 +152,13 @@ public class SplashActivity extends Activity {
                                 String fullname = document.getId();
                                 Log.e(TAG, fullname);
                                 StorageReference modelRef = storageRef.child("targets/" + fullname);
-                                File localFile = new File(modelsDir, fullname);
+                                File localFile = new File(targetsDir, fullname);
                                 if (!localFile.exists()) {
                                     modelRef.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
                                         @Override
                                         public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                                            Log.i(TAG, "Start from targets");
-                                            startMainActivity();
+                                            Log.i(TAG, "Load Models");
+                                            loadModels();
                                         }
                                     }).addOnFailureListener(new OnFailureListener() {
                                         @Override
@@ -124,7 +167,8 @@ public class SplashActivity extends Activity {
                                         }
                                     });
                                 } else {
-                                    startMainActivity();
+                                    Log.i(TAG, "Load Models 2");
+                                    loadModels();
                                 }
                             }
                         } else {
@@ -132,46 +176,6 @@ public class SplashActivity extends Activity {
                         }
                     }
                 });
-
-        // load models
-        if (!modelsDir.exists()) {
-            modelsDir.mkdir();
-        }
-
-        db.collection("models")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                String fullname = document.getId();
-                                Log.e(TAG, fullname);
-                                StorageReference modelRef = storageRef.child("models/" + fullname);
-                                File localFile = new File(modelsDir, fullname);
-                                if (!localFile.exists()) {
-                                    modelRef.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
-                                        @Override
-                                        public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                                            Log.i(TAG, "Start from models");
-                                            startMainActivity();
-                                        }
-                                    }).addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception exception) {
-                                            Log.e(TAG, exception.getMessage());
-                                        }
-                                    });
-                                } else {
-                                    startMainActivity();
-                                }
-                            }
-                        } else {
-                            Log.d(TAG, "Error getting documents: ", task.getException());
-                        }
-                    }
-                });
-
     }
 
     private interface PermissionCallback {
