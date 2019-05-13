@@ -10,7 +10,6 @@ package com.csu.ar;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileReader;
 import java.util.ArrayList;
 
@@ -24,18 +23,18 @@ import cn.easyar.CameraDeviceFocusMode;
 import cn.easyar.CameraDeviceType;
 import cn.easyar.CameraFrameStreamer;
 import cn.easyar.Frame;
-import cn.easyar.FunctorOfVoidFromPointerOfTargetAndBool;
 import cn.easyar.ImageTarget;
 import cn.easyar.ImageTracker;
 import cn.easyar.Renderer;
-import cn.easyar.StorageType;
 import cn.easyar.Target;
 import cn.easyar.TargetInstance;
 import cn.easyar.TargetStatus;
 import cn.easyar.Vec2I;
 import cn.easyar.Vec4I;
-import com.google.gson.TypeAdapterFactory;
-import org.json.JSONObject;
+import com.csu.ar.AR.ARVideo;
+import com.csu.ar.AR.ArUtils;
+import com.csu.ar.AR.ImageRenderer;
+import com.csu.ar.AR.VideoRenderer;
 
 public class HelloAR
 {
