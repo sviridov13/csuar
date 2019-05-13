@@ -1,28 +1,18 @@
-//================================================================================================================================
-//
-//  Copyright (c) 2015-2018 VisionStar Information Technology (Shanghai) Co., Ltd. All Rights Reserved.
-//  EasyAR is the registered trademark or trademark of VisionStar Information Technology (Shanghai) Co., Ltd in China
-//  and other countries for the augmented reality technology developed by VisionStar Information Technology (Shanghai) Co., Ltd.
-//
-//================================================================================================================================
-
 package com.csu.ar.AR;
-
-import javax.microedition.khronos.egl.EGL10;
-import javax.microedition.khronos.egl.EGLConfig;
-import javax.microedition.khronos.egl.EGLContext;
-import javax.microedition.khronos.egl.EGLDisplay;
-import javax.microedition.khronos.opengles.GL10;
 
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.opengl.GLSurfaceView;
 import android.util.Log;
-
 import cn.easyar.Engine;
 import com.csu.ar.HelloAR;
 
+import javax.microedition.khronos.egl.EGL10;
+import javax.microedition.khronos.egl.EGLConfig;
+import javax.microedition.khronos.egl.EGLContext;
+import javax.microedition.khronos.egl.EGLDisplay;
+import javax.microedition.khronos.opengles.GL10;
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.nio.ByteBuffer;
@@ -31,45 +21,42 @@ import java.nio.ShortBuffer;
 
 public class GLView extends GLSurfaceView
 {
-    private final HelloAR helloAR;
+    private final HelloAR itIsAr;
 
-    private boolean screenshot;
+    public boolean screenshot = false;
     private int width;
     private int height;
+    Context context;
 
-    public void setScreenshot(boolean screenshot) {
-        this.screenshot = screenshot;
-    }
-
-    public GLView(final Context context)
-    {
+    public GLView(Context context) {
         super(context);
         setEGLContextFactory(new ContextFactory());
         setEGLConfigChooser(new ConfigChooser());
+        this.context = context;
 
-        helloAR = new HelloAR();
+        itIsAr = new HelloAR();
 
-        this.setRenderer(new GLSurfaceView.Renderer() {
+        this.setRenderer(new Renderer() {
             @Override
             public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-                synchronized (helloAR) {
-                    helloAR.initGL(getContext());
+                synchronized (itIsAr) {
+                    itIsAr.initGL(getContext());
                 }
             }
 
             @Override
             public void onSurfaceChanged(GL10 gl, int w, int h) {
-                synchronized (helloAR) {
-                    helloAR.resizeGL(w, h);
+                synchronized (itIsAr) {
+                    itIsAr.resizeGL(w, h);
+                    width = w;
+                    height = h;
                 }
-                width = w;
-                height = h;
             }
 
             @Override
             public void onDrawFrame(GL10 gl) {
-                synchronized (helloAR) {
-                    helloAR.render(getContext());
+                synchronized (itIsAr) {
+                    itIsAr.render(getContext());
                 }
                 if(screenshot) {
                     screenshot = false;
@@ -80,38 +67,8 @@ public class GLView extends GLSurfaceView
         this.setZOrderMediaOverlay(true);
     }
 
-    @Override
-    protected void onAttachedToWindow() {
-        super.onAttachedToWindow();
-        synchronized (helloAR) {
-            if (helloAR.initialize(getContext())) {
-                helloAR.start();
-            }
-        }
-    }
-
-    @Override
-    protected void onDetachedFromWindow()
-    {
-        synchronized (helloAR) {
-            helloAR.stop();
-            helloAR.dispose();
-        }
-        super.onDetachedFromWindow();
-    }
-
-    @Override
-    public void onResume()
-    {
-        super.onResume();
-        Engine.onResume();
-    }
-
-    @Override
-    public void onPause()
-    {
-        Engine.onPause();
-        super.onPause();
+    public void changeCamera() {
+        itIsAr.changeCamera();
     }
 
     private void captureImage(Context context, GL10 gl) {
@@ -121,8 +78,10 @@ public class GLView extends GLSurfaceView
         gl.glReadPixels(0, 0, width, height, GL10.GL_RGBA, GL10.GL_UNSIGNED_BYTE, bb);
         int pixelsBuffer[] = new int[screenshotSize];
         bb.asIntBuffer().get(pixelsBuffer);
+        bb = null;
         Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
         bitmap.setPixels(pixelsBuffer, screenshotSize-width, -width, 0, 0, width, height);
+        pixelsBuffer = null;
 
         short sBuffer[] = new short[screenshotSize];
         ShortBuffer sb = ShortBuffer.wrap(sBuffer);
@@ -155,7 +114,41 @@ public class GLView extends GLSurfaceView
         context.sendBroadcast(intent);
     }
 
-    private static class ContextFactory implements GLSurfaceView.EGLContextFactory
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        synchronized (itIsAr) {
+            if (itIsAr.initialize(context)) {
+                itIsAr.start();
+            }
+        }
+    }
+
+    @Override
+    protected void onDetachedFromWindow()
+    {
+        synchronized (itIsAr) {
+            itIsAr.stop();
+            itIsAr.dispose();
+        }
+        super.onDetachedFromWindow();
+    }
+
+    @Override
+    public void onResume()
+    {
+        super.onResume();
+        Engine.onResume();
+    }
+
+    @Override
+    public void onPause()
+    {
+        Engine.onPause();
+        super.onPause();
+    }
+
+    private static class ContextFactory implements EGLContextFactory
     {
         private static int EGL_CONTEXT_CLIENT_VERSION = 0x3098;
 
@@ -173,7 +166,7 @@ public class GLView extends GLSurfaceView
         }
     }
 
-    private static class ConfigChooser implements GLSurfaceView.EGLConfigChooser
+    private static class ConfigChooser implements EGLConfigChooser
     {
         public EGLConfig chooseConfig(EGL10 egl, EGLDisplay display)
         {

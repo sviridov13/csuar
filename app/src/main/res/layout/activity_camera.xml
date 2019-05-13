@@ -1,49 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <FrameLayout
-            android:id="@+id/ARView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center">
+        android:id="@+id/ARView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center">
     </FrameLayout>
 
     <LinearLayout
-            android:layout_width="match_parent"
-            android:orientation="horizontal"
-            android:background="#000000"
-            android:alpha="0.8"
-            android:layout_height="80dp"
-            android:padding="10dp"
-            android:layout_gravity="bottom"
-            android:weightSum="3">
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:background="#000000"
+        android:alpha="0.8"
+        android:layout_height="80dp"
+        android:padding="10dp"
+        android:layout_gravity="bottom"
+        android:weightSum="3">
 
         <RelativeLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:alpha="1">
-        </RelativeLayout>
-
-        <ImageView
-                android:id="@+id/cameraPick"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:alpha="1">
+            <ImageView
+                android:id="@+id/cameraChange"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:clickable="true"
                 android:focusable="true"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:src="@drawable/capture_button"
+                android:padding="15dp"
+                android:foregroundGravity="center"
+                android:src="@drawable/switch_button"
                 android:alpha="1"
-                android:layout_weight="1"/>
+            />
+        </RelativeLayout>
 
         <ImageView
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"/>
+            android:id="@+id/cameraPick"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:src="@drawable/capture_button"
+            android:alpha="1"
+            android:layout_weight="1"/>
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"/>
     </LinearLayout>
 
 </FrameLayout>

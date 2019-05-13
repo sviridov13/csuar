@@ -14,7 +14,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import cn.easyar.Engine;
 import com.csu.ar.AR.GLView;
-import com.csu.ar.R;
 
 public class CameraActivity extends AppCompatActivity {
 
@@ -25,13 +24,14 @@ public class CameraActivity extends AppCompatActivity {
     private GLView GLViewSurface;
     private FrameLayout ARView;
     private BroadcastReceiver broadcastReceiver;
-
-    private ImageView cameraCaptureButton;
-
     private static boolean active;
+
+    ImageView cameraChangeButton;
+    ImageView cameraCaptureButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        active = true;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
 
@@ -51,43 +51,56 @@ public class CameraActivity extends AppCompatActivity {
                 String status = intent.getStringExtra("Status");
                 if (status.equals("Created")) {
                     Log.i(TAG, "Start PreviewImageActivity");
-                   preparationAndOpenPreviewImageActivity();
+                    preparationAndOpenPreviewImageActivity();
                 } else if (status.equals("Fail")) {
                     Log.e(TAG, "Failed to save and open image");
                 }
             }
         };
-
         registerReceiver(broadcastReceiver, new IntentFilter("pictureAvailability"));
 
         ARView = (FrameLayout) findViewById(R.id.ARView);
 
+        cameraChangeButton = (ImageView) findViewById(R.id.cameraChange);
         cameraCaptureButton = (ImageView) findViewById(R.id.cameraPick);
 
+        cameraChangeButton.setOnClickListener(clickListener);
         cameraCaptureButton.setOnClickListener(clickListener);
 
-        GLViewSurface = new GLView(getApplicationContext());
+        GLViewSurface = new GLView(this);
         ARView.addView(GLViewSurface, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
     }
 
-    private View.OnClickListener clickListener = new View.OnClickListener() {
+    View.OnClickListener clickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            Log.i(TAG, "Click on cameraCaptureButton button");
-            GLViewSurface.setScreenshot(true);
-            GLViewSurface.onPause();
-
+            switch (v.getId()) {
+                case R.id.cameraChange:
+                    Log.i(TAG, "Click on cameraChangeButton button");
+                    switchCameraAction();
+                    break;
+                case R.id.cameraPick:
+                    Log.i(TAG, "Click on cameraCaptureButton button");
+                    GLViewSurface.screenshot = true;
+                    GLViewSurface.onPause();
+                    break;
+            }
         }
     };
 
     public void switchCameraAction() {
         GLViewSurface.onPause();
+        GLViewSurface.changeCamera();
         GLViewSurface.onResume();
+    }
+
+    public void preparationAndOpenPreviewImageActivity() {
+        Intent startActivityIntent = new Intent(this, PreviewImageActivity.class);
+        startActivity(startActivityIntent);
     }
 
     @Override
     protected void onStart() {
-        active = true;
         super.onStart();
         GLViewSurface.onResume();
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN
@@ -97,14 +110,8 @@ public class CameraActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        active = false;
         unregisterReceiver(broadcastReceiver);
         super.onDestroy();
-    }
-
-    public void preparationAndOpenPreviewImageActivity() {
-        Intent startActivityIntent = new Intent(this, PreviewImageActivity.class);
-        startActivity(startActivityIntent);
     }
 
     public static boolean getStatus() {

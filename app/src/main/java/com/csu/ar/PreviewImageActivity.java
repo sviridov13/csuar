@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.*;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
@@ -15,12 +16,20 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import com.csu.ar.R;
+import com.dailystudio.app.utils.BitmapUtils;
+import com.dailystudio.development.Logger;
+import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.firestore.FieldValue;
+import com.csu.ar.segmentation.DeeplabInterface;
+import com.csu.ar.segmentation.DeeplabModel;
+import com.csu.ar.segmentation.ImageUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -42,10 +51,29 @@ public class PreviewImageActivity extends AppCompatActivity {
     RelativeLayout shareNavigationButton;
     Bitmap bitmap;
     Bitmap defaultBitmap;
+    Bitmap finallyCropped;
     Uri uri;
 
     ArrayList<String> backgroundsList;
     Bitmap bg;
+
+    private class InitializeModelAsyncTask extends AsyncTask<Void, Void, Boolean> {
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            final boolean ret = DeeplabModel.getInstance().initialize(getApplicationContext());
+            Log.i(TAG, "initialize deeplab model: " + ret);
+            return ret;
+        }
+    }
+
+    private void initModel() {
+        try {
+            new InitializeModelAsyncTask().execute((Void) null);
+        } catch (Exception e) {
+            Log.e(TAG, "Init model: " + e.getMessage());
+            finish();
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +81,7 @@ public class PreviewImageActivity extends AppCompatActivity {
 
 
         backgroundsList = new ArrayList<>();
+        // Дефолтное изображение
         backgroundsList.add("file:///android_asset/default_pic_pic.png");
         File backgroundsDir = new File(System.getProperty("java.io.tmpdir") + "/backgrounds");
         if (backgroundsDir.exists()) {
@@ -62,13 +91,17 @@ public class PreviewImageActivity extends AppCompatActivity {
             }
         }
 
+
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.hide();
         }
 
+        initModel();
 
         setContentView(R.layout.activity_preview_image);
+
+        initRecyclerView();
 
         previewImage = (ImageView) findViewById(R.id.previewImage);
         setImageView();
@@ -82,7 +115,7 @@ public class PreviewImageActivity extends AppCompatActivity {
         shareNavigationButton.setOnClickListener(onClickListener);
     }
 
-    private View.OnClickListener onClickListener = new View.OnClickListener() {
+    View.OnClickListener onClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             switch (v.getId()) {
@@ -100,15 +133,149 @@ public class PreviewImageActivity extends AppCompatActivity {
         }
     };
 
+    private class ThreadSegmentation extends AsyncTask<String, Void, Bitmap> {
+
+        @Override
+        protected Bitmap doInBackground(String... strings) {
+            return segmentImage();
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressBar.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap mBitmap) {
+            super.onPostExecute(bitmap);
+            if (mBitmap != null) {
+                previewImage.setImageBitmap(mBitmap);
+                updateUri(mBitmap);
+                bitmap = mBitmap;
+            }
+            progressBar.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    private Bitmap segmentImage() {
+        try {
+            DeeplabInterface deeplabInterface = DeeplabModel.getInstance();
+
+            if (!deeplabInterface.isInitialized()) {
+                initModel();
+            }
+
+            if (defaultBitmap == null) { defaultBitmap = bitmap; }
+            else { bitmap = defaultBitmap; }
+
+            if (bg == null) { return defaultBitmap; }
+
+            final int w = bitmap.getWidth();
+            final int h = bitmap.getHeight();
+
+            if (finallyCropped == null) {
+                float resizeRatio = (float) deeplabInterface.getInputSize() / Math.max(bitmap.getWidth(), bitmap.getHeight());
+                int rw = Math.round(w * resizeRatio);
+                int rh = Math.round(h * resizeRatio);
+
+                Logger.debug("Resize bitmap: ratio = %f, [%d x %d] -> [%d x %d]",
+                        resizeRatio, w, h, rw, rh);
+
+                Bitmap resized = ImageUtils.tfResizeBilinear(bitmap, rw, rh);
+                Bitmap mask = deeplabInterface.segment(resized);
+
+                if (mask != null) {
+                    mask = BitmapUtils.createClippedBitmap(mask,
+                            (mask.getWidth() - rw) / 2,
+                            (mask.getHeight() - rh) / 2,
+                            rw, rh);
+                    mask = BitmapUtils.scaleBitmap(mask, w, h);
+                }
+
+                finallyCropped = cropBitmapWithMask(bitmap, mask);
+            }
+
+            bg = ImageUtils.tfResizeBilinear(bg, w, h);
+            Bitmap cropped = cropBitmapWithBG(finallyCropped, bg);
+            return cropped;
+        } catch (Exception e) {
+            Log.e(TAG, "Some error when segment " + e.getMessage());
+            return null;
+        }
+    }
+
+    private Bitmap cropBitmapWithBG(Bitmap original, Bitmap bg) {
+        final int w = original.getWidth();
+        final int h = original.getHeight();
+
+        Bitmap cropped = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(cropped);
+        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+
+        Paint ptBlur = new Paint();
+        ptBlur.setMaskFilter(new BlurMaskFilter(50, BlurMaskFilter.Blur.OUTER));
+        int[] offsetXY = new int[2];
+        Bitmap bmAlpha = original.extractAlpha(ptBlur, offsetXY);
+
+        Paint ptAlphaColor = new Paint();
+        ptAlphaColor.setColor(0xFFFFFFFF);
+
+        canvas.drawBitmap(bg, 0, 0, null);
+        canvas.drawBitmap(bmAlpha, offsetXY[0], offsetXY[1], ptAlphaColor);
+        canvas.drawBitmap(original, 0, 0, paint);
+
+        bmAlpha.recycle();
+
+        paint.setXfermode(null);
+        return cropped;
+    }
+
+
+    private Bitmap cropBitmapWithMask(Bitmap original, Bitmap mask) {
+        if (original == null || mask == null) {
+            return null;
+        }
+
+        final int w = original.getWidth();
+        final int h = original.getHeight();
+        if (w <= 0 || h <= 0) {
+            return null;
+        }
+
+        Bitmap cropped = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+
+
+        Canvas canvas = new Canvas(cropped);
+        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
+
+        canvas.drawBitmap(original, 0, 0, null);
+        canvas.drawBitmap(mask, 0, 0, paint);
+
+
+        paint.setXfermode(null);
+
+        return cropped;
+    }
+
     private void openShareMenu() {
+        pushAnalyticsLog("Click_On_Share_Button");
         Intent shareIntent = ShareCompat.IntentBuilder.from(this)
                 .setType("image/jpeg")
                 .setStream(uri)
-                .setText("#csu #компьютернаябезопастность")
+                .setText("#CSU #KB")
                 .setChooserTitle("Поделиться с помощью приложения:")
                 .createChooserIntent()
                 .addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
         startActivity(shareIntent);
+    }
+
+    private void pushAnalyticsLog(String channel) {
+        Bundle params = new Bundle();
+        params.putString( "Click", FieldValue.serverTimestamp().toString());
+        FirebaseAnalytics analytics = FirebaseAnalytics.getInstance( PreviewImageActivity.this );
+        analytics.logEvent( channel, params );
     }
 
     private void updateUri(Bitmap nBitmap) {
@@ -120,7 +287,6 @@ public class PreviewImageActivity extends AppCompatActivity {
             fOut.close();
             file.setReadable(true, false);
             uri = FileProvider.getUriForFile(this, getPackageName() + ".provider", file);
-
             Log.i(TAG, "Successfully save preview image to cache");
         } catch (Exception e) {
             Log.e(TAG, "Failed to save preview image to cache" + e.getMessage());
@@ -146,6 +312,7 @@ public class PreviewImageActivity extends AppCompatActivity {
             else
                 snackBarStr = "Не удалось сохранить фото";
             Snackbar.make(findViewById(R.id.imageBody), snackBarStr, Snackbar.LENGTH_SHORT).show();
+            pushAnalyticsLog("Click_On_Save_Button");
         } catch (IOException e) {
             Log.e(TAG, "Failed to save image " + e.getMessage());
         }
@@ -167,8 +334,8 @@ public class PreviewImageActivity extends AppCompatActivity {
 
     private void requestCameraPermission() {
         ActivityCompat.requestPermissions(this,
-                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                WRITE_EXTERNAL_STORAGE);
+                    new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    WRITE_EXTERNAL_STORAGE);
     }
 
     @Override
@@ -187,4 +354,29 @@ public class PreviewImageActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
+    private void initRecyclerView() {
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        RecyclerView recyclerView = findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(linearLayoutManager);
+
+        int recyclerViewHeight = recyclerView.getHeight();
+
+        BackgroundListAdapter backgroundListAdapter = new BackgroundListAdapter(this, backgroundsList, recyclerViewHeight);
+
+        backgroundListAdapter.setOnItemClickListener(new BackgroundListAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(String drawableUri) {
+                Log.i(TAG, "Click on drawable: " + drawableUri);
+
+                if (drawableUri.contains("default_pic")) {
+                    bg = null;
+                } else {
+                    bg = BitmapFactory.decodeFile(drawableUri);
+                }
+                new ThreadSegmentation().execute(":D");
+            }
+        });
+
+        recyclerView.setAdapter(backgroundListAdapter);
+    }
 }

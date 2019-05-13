@@ -114,7 +114,7 @@ public class SplashActivity extends Activity {
                                         @Override
                                         public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
                                             Log.i(TAG, "Start from models");
-                                            startMainActivity();
+                                            loadBackgrounds();
                                         }
                                     }).addOnFailureListener(new OnFailureListener() {
                                         @Override
@@ -170,6 +170,42 @@ public class SplashActivity extends Activity {
                                     Log.i(TAG, "Load Models 2");
                                     loadModels();
                                 }
+                            }
+                        } else {
+                            Log.d(TAG, "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
+
+    }
+
+    private void loadBackgrounds() {
+        if(!backgroundsDir.exists()) {
+            backgroundsDir.mkdir();
+        }
+        db.collection("backgrounds")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                String fullname = document.getId();
+                                StorageReference backgroundRef = storageRef.child("backgrounds/" + fullname);
+                                File localFile = new File(backgroundsDir, fullname);
+                                if (!localFile.exists())
+                                    backgroundRef.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                                        @Override
+                                        public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                                            Log.i(TAG, "Start from backgrounds");
+                                            startMainActivity();
+                                        }
+                                    }).addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception exception) {
+
+                                        }
+                                    });
                             }
                         } else {
                             Log.d(TAG, "Error getting documents: ", task.getException());
