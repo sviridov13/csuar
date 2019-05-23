@@ -43,6 +43,12 @@
                     android:name="android.support.FILE_PROVIDER_PATHS"
                     android:resource="@xml/provider_paths"/>
         </provider>
+        <service android:name=".services.LoadFilesService"
+                 android:exported="false">
+            <intent-filter>
+                <action android:name="com.csu.ar.action.LOAD_FILES_ACTION"/>
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>
