@@ -1,4 +1,4 @@
-package com.csu.ar;
+package com.csu.ar.ui;
 
 import android.Manifest;
 import android.annotation.TargetApi;
@@ -26,7 +26,7 @@ public class SplashActivity extends Activity {
 
     private static final String LOAD_FILES_ACTION = "com.csu.ar.action.LOAD_FILES_ACTION";
 
-    FirebaseAuth mAuth;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

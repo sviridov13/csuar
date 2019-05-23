@@ -1,4 +1,4 @@
-package com.csu.ar;
+package com.csu.ar.ui;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -14,6 +14,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import cn.easyar.Engine;
 import com.csu.ar.AR.GLView;
+import com.csu.ar.R;
 
 public class CameraActivity extends AppCompatActivity {
 

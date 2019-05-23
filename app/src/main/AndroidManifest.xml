@@ -12,7 +12,7 @@
             android:label="@string/app_name"
             android:theme="@style/AppTheme">
         <activity
-                android:name="com.csu.ar.SplashActivity"
+                android:name="com.csu.ar.ui.SplashActivity"
                 android:screenOrientation="portrait"
                 android:theme="@style/SplashThemeWithImage">
             <intent-filter>
@@ -23,13 +23,13 @@
             </intent-filter>
         </activity>
         <activity
-                android:name="com.csu.ar.CameraActivity"
+                android:name="com.csu.ar.ui.CameraActivity"
                 android:screenOrientation="portrait"
                 android:configChanges="orientation|screenSize|keyboardHidden"
                 android:label="@string/app_name">
         </activity>
         <activity
-                android:name="com.csu.ar.PreviewImageActivity"
+                android:name="com.csu.ar.ui.PreviewImageActivity"
                 android:screenOrientation="portrait"
                 android:label="@string/title_activity_preview_image"
                 android:theme="@style/AppTheme.NoActionBar">

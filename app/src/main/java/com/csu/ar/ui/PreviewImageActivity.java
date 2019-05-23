@@ -1,4 +1,4 @@
-package com.csu.ar;
+package com.csu.ar.ui;
 
 import android.Manifest;
 import android.content.Intent;
@@ -23,6 +23,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import com.csu.ar.BackgroundListAdapter;
 import com.dailystudio.app.utils.BitmapUtils;
 import com.dailystudio.development.Logger;
 import com.google.firebase.analytics.FirebaseAnalytics;
@@ -30,6 +31,7 @@ import com.google.firebase.firestore.FieldValue;
 import com.csu.ar.segmentation.DeeplabInterface;
 import com.csu.ar.segmentation.DeeplabModel;
 import com.csu.ar.segmentation.ImageUtils;
+import com.csu.ar.R;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -43,19 +45,19 @@ public class PreviewImageActivity extends AppCompatActivity {
 
     private final String TAG = this.getClass().getSimpleName();
 
-    int WRITE_EXTERNAL_STORAGE = 1;
+    private static final int WRITE_EXTERNAL_STORAGE = 1;
 
-    ImageView previewImage;
-    ProgressBar progressBar;
-    RelativeLayout saveNavigationButton;
-    RelativeLayout shareNavigationButton;
-    Bitmap bitmap;
-    Bitmap defaultBitmap;
-    Bitmap finallyCropped;
-    Uri uri;
+    private ImageView previewImage;
+    private ProgressBar progressBar;
+    private RelativeLayout saveNavigationButton;
+    private RelativeLayout shareNavigationButton;
+    private Bitmap bitmap;
+    private Bitmap defaultBitmap;
+    private Bitmap finallyCropped;
+    private Uri uri;
 
-    ArrayList<String> backgroundsList;
-    Bitmap bg;
+    private ArrayList<String> backgroundsList;
+    private Bitmap bg;
 
     private class InitializeModelAsyncTask extends AsyncTask<Void, Void, Boolean> {
         @Override
@@ -214,6 +216,7 @@ public class PreviewImageActivity extends AppCompatActivity {
 
         Paint ptBlur = new Paint();
         ptBlur.setMaskFilter(new BlurMaskFilter(70, BlurMaskFilter.Blur.OUTER));
+        ptBlur.setMaskFilter(new BlurMaskFilter(70, BlurMaskFilter.Blur.INNER));
         int[] offsetXY = new int[2];
         Bitmap bmAlpha = original.extractAlpha(ptBlur, offsetXY);
 

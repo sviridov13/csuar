@@ -1,134 +1,98 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:background="#e0e0e0"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:weightSum="100">
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:background="#e0e0e0"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:weightSum="100">
 
     <ProgressBar
-        android:id="@+id/previewProgress"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="match_parent"
-        android:indeterminate="true"
-        android:backgroundTint="@color/colorPrimaryDark"
-        android:indeterminateTint="@color/colorPrimaryDark"
-        android:layout_height="0dp"
-        android:visibility="invisible"
-        android:layout_weight="3"/>
+            android:id="@+id/previewProgress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:indeterminate="true"
+            android:backgroundTint="@color/colorPrimaryDark"
+            android:indeterminateTint="@color/colorPrimaryDark"
+            android:layout_height="0dp"
+            android:visibility="invisible"
+            android:layout_weight="3"/>
 
     <FrameLayout
-        android:id="@+id/imageBody"
-        android:layout_width="match_parent"
-        android:layout_weight="77"
-        android:layout_height="0dp">
+            android:id="@+id/imageBody"
+            android:layout_width="match_parent"
+            android:layout_weight="77"
+            android:layout_height="0dp">
 
         <ImageView
-            android:id="@+id/previewImage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="10dp"
-            android:layout_gravity="center"/>
+                android:id="@+id/previewImage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:layout_gravity="center"/>
 
     </FrameLayout>
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/recyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="10"
-        android:orientation="horizontal"
-        android:background="#bdbdbd"/>
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="10"
+            android:orientation="horizontal"
+            android:background="#bdbdbd"/>
 
     <LinearLayout
-    android:id="@+id/navigation"
-    android:orientation="horizontal"
-    android:layout_width="match_parent"
-    android:layout_weight="10"
-    android:layout_height="0dp"
-    android:weightSum="2"
-    android:background="?android:attr/windowBackground">
+            android:id="@+id/navigation"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_weight="10"
+            android:layout_height="0dp"
+            android:weightSum="2"
+            android:background="?android:attr/windowBackground">
         <RelativeLayout
-            android:id="@+id/saveNavigationButton"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:layout_weight="1"
-            android:background="?android:attr/selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true">
-            <ImageView
-                android:id="@+id/sim"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_preview_save" />
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/save_button_text"
+                android:id="@+id/saveNavigationButton"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
                 android:gravity="center"
-                android:layout_centerVertical="true"
-                android:layout_below="@id/sim"/>
+                android:layout_weight="1"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+            <ImageView
+                    android:id="@+id/sim"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_preview_save"/>
+            <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/save_button_text"
+                    android:gravity="center"
+                    android:layout_centerVertical="true"
+                    android:layout_below="@id/sim"/>
         </RelativeLayout>
 
         <RelativeLayout
-            android:id="@+id/shareNavigationButton"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:layout_weight="1"
-            android:background="?android:attr/selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true">
-            <ImageView
-                android:id="@+id/sims"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_preview_share" />
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/share_button_text"
+                android:id="@+id/shareNavigationButton"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
                 android:gravity="center"
-                android:layout_centerVertical="true"
-                android:layout_below="@id/sims"/>
+                android:layout_weight="1"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+            <ImageView
+                    android:id="@+id/sims"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_screen_share_black_24dp"/>
+            <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/share_button_text"
+                    android:gravity="center"
+                    android:layout_centerVertical="true"
+                    android:layout_below="@id/sims"/>
         </RelativeLayout>
     </LinearLayout>
-
-    <!--<LinearLayout-->
-        <!--android:id="@+id/navigation"-->
-        <!--android:orientation="horizontal"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_weight="10"-->
-        <!--android:layout_height="0dp"-->
-        <!--android:background="?android:attr/windowBackground">-->
-
-        <!--<Button-->
-            <!--android:id="@+id/saveNavigationButton"-->
-            <!--android:layout_width="0dp"-->
-            <!--android:layout_height="match_parent"-->
-            <!--android:layout_weight="1"-->
-            <!--android:text="@string/save_button_text"-->
-            <!--android:textColor="@color/preview_gray"-->
-            <!--android:gravity="center"-->
-            <!--android:background="@color/colorAccent"-->
-            <!--android:drawableTop="@drawable/ic_preview_save"-->
-            <!--android:clickable="true"-->
-            <!--android:focusable="true"/>-->
-        <!--<Button-->
-            <!--android:id="@+id/shareNavigationButton"-->
-            <!--android:layout_width="0dp"-->
-            <!--android:layout_height="match_parent"-->
-            <!--android:layout_weight="1"-->
-            <!--android:text="@string/share_button_text"-->
-            <!--android:textColor="@color/preview_gray"-->
-            <!--android:gravity="center"-->
-            <!--android:background="@color/colorAccent"-->
-            <!--android:drawableTop="@drawable/ic_preview_share"-->
-            <!--android:clickable="true"-->
-            <!--android:focusable="true"/>-->
-
-    <!--</LinearLayout>-->
-
 </LinearLayout>

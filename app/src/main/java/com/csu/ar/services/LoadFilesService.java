@@ -4,12 +4,11 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.util.Log;
-import com.csu.ar.CameraActivity;
+import com.csu.ar.ui.CameraActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -103,7 +102,7 @@ public class LoadFilesService extends IntentService {
                                         @Override
                                         public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
                                             Log.i(TAG, "Start from backgrounds");
-                                            startMainActivity();
+                                            startCameraActivity();
                                         }
                                     }).addOnFailureListener(new OnFailureListener() {
                                         @Override
@@ -112,7 +111,7 @@ public class LoadFilesService extends IntentService {
                                         }
                                     });
                                 else {
-                                    startMainActivity();
+                                    startCameraActivity();
                                 }
                             }
                         } else {
@@ -168,7 +167,7 @@ public class LoadFilesService extends IntentService {
 
     }
 
-    private void startMainActivity() {
+    private void startCameraActivity() {
         if (!CameraActivity.getStatus()) {
             Intent intent = new Intent(this, CameraActivity.class);
             startActivity(intent);
