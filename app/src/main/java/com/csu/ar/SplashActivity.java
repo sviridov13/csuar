@@ -108,12 +108,12 @@ public class SplashActivity extends Activity {
                                 String fullname = document.getId();
                                 StorageReference modelRef = storageRef.child("models/" + fullname);
                                 File localFile = new File(modelsDir, fullname);
-                                Log.e(TAG, localFile.getAbsolutePath());
+                                Log.i(TAG, localFile.getAbsolutePath());
                                 if (!localFile.exists()) {
                                     modelRef.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
                                         @Override
                                         public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                                            Log.i(TAG, "Start from models");
+                                            Log.i(TAG, "Start from backs");
                                             loadBackgrounds();
                                         }
                                     }).addOnFailureListener(new OnFailureListener() {
@@ -123,7 +123,7 @@ public class SplashActivity extends Activity {
                                         }
                                     });
                                 } else {
-                                   startMainActivity();
+                                    loadBackgrounds();
                                 }
                             }
                         } else {
@@ -150,10 +150,11 @@ public class SplashActivity extends Activity {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 String fullname = document.getId();
-                                Log.e(TAG, fullname);
+                                Log.i(TAG, fullname);
                                 StorageReference modelRef = storageRef.child("targets/" + fullname);
                                 File localFile = new File(targetsDir, fullname);
                                 if (!localFile.exists()) {
+                                    Log.e(TAG, localFile.getAbsolutePath());
                                     modelRef.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
                                         @Override
                                         public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
@@ -206,6 +207,9 @@ public class SplashActivity extends Activity {
 
                                         }
                                     });
+                                else {
+                                    startMainActivity();
+                                }
                             }
                         } else {
                             Log.d(TAG, "Error getting documents: ", task.getException());

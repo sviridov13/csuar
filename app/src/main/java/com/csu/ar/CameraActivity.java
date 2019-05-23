@@ -24,7 +24,7 @@ public class CameraActivity extends AppCompatActivity {
     private GLView GLViewSurface;
     private FrameLayout ARView;
     private BroadcastReceiver broadcastReceiver;
-    private static boolean active;
+    private static boolean active = false;
 
     ImageView cameraChangeButton;
     ImageView cameraCaptureButton;
@@ -112,6 +112,15 @@ public class CameraActivity extends AppCompatActivity {
     protected void onDestroy() {
         unregisterReceiver(broadcastReceiver);
         super.onDestroy();
+        active = false;
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_HOME);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
     }
 
     public static boolean getStatus() {

@@ -82,7 +82,7 @@ public class PreviewImageActivity extends AppCompatActivity {
 
         backgroundsList = new ArrayList<>();
         // Дефолтное изображение
-        backgroundsList.add("file:///android_asset/default_pic_pic.png");
+        backgroundsList.add("file:///android_asset/delete_background.png");
         File backgroundsDir = new File(System.getProperty("java.io.tmpdir") + "/backgrounds");
         if (backgroundsDir.exists()) {
             File[] backgroundsFiles = backgroundsDir.listFiles();
@@ -197,8 +197,7 @@ public class PreviewImageActivity extends AppCompatActivity {
             }
 
             bg = ImageUtils.tfResizeBilinear(bg, w, h);
-            Bitmap cropped = cropBitmapWithBG(finallyCropped, bg);
-            return cropped;
+            return cropBitmapWithBG(finallyCropped, bg);
         } catch (Exception e) {
             Log.e(TAG, "Some error when segment " + e.getMessage());
             return null;
@@ -214,7 +213,7 @@ public class PreviewImageActivity extends AppCompatActivity {
         Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
         Paint ptBlur = new Paint();
-        ptBlur.setMaskFilter(new BlurMaskFilter(50, BlurMaskFilter.Blur.OUTER));
+        ptBlur.setMaskFilter(new BlurMaskFilter(70, BlurMaskFilter.Blur.OUTER));
         int[] offsetXY = new int[2];
         Bitmap bmAlpha = original.extractAlpha(ptBlur, offsetXY);
 
@@ -264,7 +263,7 @@ public class PreviewImageActivity extends AppCompatActivity {
         Intent shareIntent = ShareCompat.IntentBuilder.from(this)
                 .setType("image/jpeg")
                 .setStream(uri)
-                .setText("#CSU #KB")
+                .setText("#CSU #KB #Security #MathCSU")
                 .setChooserTitle("Поделиться с помощью приложения:")
                 .createChooserIntent()
                 .addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
