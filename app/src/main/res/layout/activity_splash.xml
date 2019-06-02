@@ -27,8 +27,8 @@
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true">
         <TextView
-                android:text="Обновление"
-                android:textSize="28sp"
+                android:text="@string/load_text"
+                android:textSize="18sp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/splashTextViewProgressBar"

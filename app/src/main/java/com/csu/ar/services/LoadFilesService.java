@@ -9,7 +9,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -25,8 +24,6 @@ public class LoadFilesService extends IntentService {
 
     FirebaseStorage storage = FirebaseStorage.getInstance();
     StorageReference storageRef = storage.getReference();
-
-    FirebaseAuth mAuth;
 
     String tmpDir = System.getProperty("java.io.tmpdir");
     File targetsDir = new File(tmpDir + "/targets");
@@ -58,6 +55,7 @@ public class LoadFilesService extends IntentService {
                                 String fullname = document.getId();
                                 StorageReference modelRef = storageRef.child("models/" + fullname);
                                 File localFile = new File(modelsDir, fullname);
+                                Log.i(TAG, "Get Models");
                                 Log.i(TAG, localFile.getAbsolutePath());
                                 if (!localFile.exists()) {
                                     modelRef.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
@@ -69,7 +67,7 @@ public class LoadFilesService extends IntentService {
                                     }).addOnFailureListener(new OnFailureListener() {
                                         @Override
                                         public void onFailure(@NonNull Exception exception) {
-                                            Log.e(TAG, exception.getMessage());
+                                            Log.e(TAG, fullname + " " + exception.getMessage());
                                         }
                                     });
                                 } else {
@@ -107,7 +105,7 @@ public class LoadFilesService extends IntentService {
                                     }).addOnFailureListener(new OnFailureListener() {
                                         @Override
                                         public void onFailure(@NonNull Exception exception) {
-
+                                            Log.e(TAG, fullname + " " + exception.getMessage());
                                         }
                                     });
                                 else {
@@ -138,7 +136,7 @@ public class LoadFilesService extends IntentService {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 String fullname = document.getId();
-                                Log.i(TAG, fullname);
+                                Log.i(TAG, "Get targets");
                                 StorageReference modelRef = storageRef.child("targets/" + fullname);
                                 File localFile = new File(targetsDir, fullname);
                                 if (!localFile.exists()) {
@@ -151,11 +149,10 @@ public class LoadFilesService extends IntentService {
                                     }).addOnFailureListener(new OnFailureListener() {
                                         @Override
                                         public void onFailure(@NonNull Exception exception) {
-                                            Log.e(TAG, exception.getMessage());
+                                            Log.e(TAG, fullname + " " + exception.getMessage());
                                         }
                                     });
                                 } else {
-                                    Log.i(TAG, "Load Models 2");
                                     loadModels();
                                 }
                             }
@@ -170,6 +167,7 @@ public class LoadFilesService extends IntentService {
     private void startCameraActivity() {
         if (!CameraActivity.getStatus()) {
             Intent intent = new Intent(this, CameraActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
             Log.i(TAG, "CameraActivity start");
         } else {

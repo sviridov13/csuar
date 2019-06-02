@@ -14,7 +14,6 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:orientation="horizontal"
-        android:background="#000000"
         android:alpha="0.8"
         android:layout_height="80dp"
         android:padding="10dp"
@@ -34,7 +33,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:padding="15dp"
-                android:foregroundGravity="center"
                 android:src="@drawable/ic_switch_camera_black_24dp"
                 android:alpha="1"
             />

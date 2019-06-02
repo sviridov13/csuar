@@ -215,8 +215,7 @@ public class PreviewImageActivity extends AppCompatActivity {
         Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
         Paint ptBlur = new Paint();
-        ptBlur.setMaskFilter(new BlurMaskFilter(70, BlurMaskFilter.Blur.OUTER));
-        ptBlur.setMaskFilter(new BlurMaskFilter(70, BlurMaskFilter.Blur.INNER));
+        ptBlur.setMaskFilter(new BlurMaskFilter(50, BlurMaskFilter.Blur.OUTER));
         int[] offsetXY = new int[2];
         Bitmap bmAlpha = original.extractAlpha(ptBlur, offsetXY);
 
@@ -266,7 +265,7 @@ public class PreviewImageActivity extends AppCompatActivity {
         Intent shareIntent = ShareCompat.IntentBuilder.from(this)
                 .setType("image/jpeg")
                 .setStream(uri)
-                .setText("#CSU #KB #Security #MathCSU")
+                .setText("#csu #informationsecurity #kb #mathcsu #chelyabinsk")
                 .setChooserTitle("Поделиться с помощью приложения:")
                 .createChooserIntent()
                 .addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);

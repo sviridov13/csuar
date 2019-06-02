@@ -6,9 +6,15 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.app.Activity;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.RotateAnimation;
+import android.widget.ImageView;
+import android.widget.TextView;
 import com.csu.ar.R;
 import com.csu.ar.services.LoadFilesService;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -20,7 +26,11 @@ import com.google.firebase.auth.FirebaseUser;
 
 import java.util.HashMap;
 
-public class SplashActivity extends Activity {
+public class SplashActivity extends AppCompatActivity {
+
+    private ImageView splashImage;
+    private TextView textView;
+    private RotateAnimation animation;
 
     private final String TAG = this.getClass().getSimpleName();
 
@@ -32,6 +42,14 @@ public class SplashActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
+        animation = new RotateAnimation(-30, 60, 100, 180);
+        animation.setRepeatMode(Animation.REVERSE);
+        animation.setRepeatCount(Animation.INFINITE);
+        animation.setInterpolator(new LinearInterpolator());
+        animation.setDuration(1000L);
+
+        splashImage = (ImageView) findViewById(R.id.splashImage);
+        textView = (TextView) findViewById(R.id.splashTextViewProgressBar);
 
         Intent intent = new Intent(this, LoadFilesService.class);
         intent.setAction(LOAD_FILES_ACTION);
@@ -43,8 +61,17 @@ public class SplashActivity extends Activity {
                 FirebaseUser user = mAuth.getCurrentUser();
                 if (user != null) {
                     startService(intent);
+                    splashImage.setVisibility(View.VISIBLE);
+                    textView.setVisibility(View.VISIBLE);
+                    setTheme(R.style.SplashThemeWithoutImage);
+                    splashImage.setAnimation(animation);
                 } else {
                     signInAnonymously();
+                    splashImage.setAnimation(animation);
+                    splashImage.setVisibility(View.VISIBLE);
+                    textView.setVisibility(View.VISIBLE);
+                    setTheme(R.style.SplashThemeWithoutImage);
+                    splashImage.setAnimation(animation);
                 }
             }
 

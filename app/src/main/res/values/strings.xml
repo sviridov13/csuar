@@ -5,4 +5,5 @@
     <string name="title_activity_preview_image">PreviewImageActivity</string>
     <string name="save_button_text">СОХРАНИТЬ</string>
     <string name="share_button_text">ПОДЕЛИТЬСЯ</string>
+    <string name="load_text">Загрузка. Пожалуйста, подождите...</string>
 </resources>

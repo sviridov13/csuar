@@ -95,7 +95,6 @@ public class HelloAR
 
         File targetsDir = new File(System.getProperty("java.io.tmpdir") + "/targets");
         File modelsDir = new File(System.getProperty("java.io.tmpdir") + "/models");
-        Log.e(TAG, Boolean.toString(targetsDir.exists()));
         if (targetsDir.exists() && modelsDir.exists()) {
             File[] targetsFiles = targetsDir.listFiles();
             for (File targetsFile : targetsFiles) {
