@@ -20,7 +20,7 @@ import java.nio.ShortBuffer;
 
 public class GLView extends GLSurfaceView
 {
-    private final HelloAR itIsAr;
+    private final HelloAR helloAR;
 
     public boolean screenshot = false;
     private int width;
@@ -33,20 +33,20 @@ public class GLView extends GLSurfaceView
         setEGLConfigChooser(new ConfigChooser());
         this.context = context;
 
-        itIsAr = new HelloAR();
+        helloAR = new HelloAR();
 
         this.setRenderer(new Renderer() {
             @Override
             public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-                synchronized (itIsAr) {
-                    itIsAr.initGL(getContext());
+                synchronized (helloAR) {
+                    helloAR.initGL(getContext());
                 }
             }
 
             @Override
             public void onSurfaceChanged(GL10 gl, int w, int h) {
-                synchronized (itIsAr) {
-                    itIsAr.resizeGL(w, h);
+                synchronized (helloAR) {
+                    helloAR.resizeGL(w, h);
                     width = w;
                     height = h;
                 }
@@ -54,8 +54,8 @@ public class GLView extends GLSurfaceView
 
             @Override
             public void onDrawFrame(GL10 gl) {
-                synchronized (itIsAr) {
-                    itIsAr.render(getContext());
+                synchronized (helloAR) {
+                    helloAR.render(getContext());
                 }
                 if(screenshot) {
                     screenshot = false;
@@ -67,7 +67,7 @@ public class GLView extends GLSurfaceView
     }
 
     public void changeCamera() {
-        itIsAr.changeCamera();
+        helloAR.changeCamera();
     }
 
     private void captureImage(Context context, GL10 gl) {
@@ -116,9 +116,9 @@ public class GLView extends GLSurfaceView
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        synchronized (itIsAr) {
-            if (itIsAr.initialize(context)) {
-                itIsAr.start();
+        synchronized (helloAR) {
+            if (helloAR.initialize(context)) {
+                helloAR.start();
             }
         }
     }
@@ -126,9 +126,9 @@ public class GLView extends GLSurfaceView
     @Override
     protected void onDetachedFromWindow()
     {
-        synchronized (itIsAr) {
-            itIsAr.stop();
-            itIsAr.dispose();
+        synchronized (helloAR) {
+            helloAR.stop();
+            helloAR.dispose();
         }
         super.onDetachedFromWindow();
     }
