@@ -165,7 +165,7 @@ public class LoadFilesService extends IntentService {
     }
 
     private void startCameraActivity() {
-        if (!CameraActivity.getStatus()) {
+        if (!CameraActivity.getStatus() && storageRef.getActiveDownloadTasks().size() == 0) {
             Intent intent = new Intent(this, CameraActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
